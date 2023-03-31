@@ -24,7 +24,10 @@ const Home = () => {
                     headerTitle: ""
                 }}
             />
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                nestedScrollEnabled
+            >
                 <View style={{ flex: 1, padding: SIZES.medium }}>
                     <Welcome />
                     <Popularjobs />
