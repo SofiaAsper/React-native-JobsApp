@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 const useFetch = (endpoint, query) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const cache = useRef({});
 
     const options = {
         method: 'GET',
@@ -18,29 +19,34 @@ const useFetch = (endpoint, query) => {
 
     const fetchData = async () => {
         setIsLoading(true);
-        try {
-            const response = await axios.request(options);
-            setData(response.data.data);
+        const cacheKey = JSON.stringify(options);
+        if (cache.current[cacheKey]) {
+            setData(cache.current[cacheKey]);
             setIsLoading(false);
-        } catch (error) {
-            setError(error);
-            alert('There was an error fetching data. Please try again later.')
-        } finally {
-            setIsLoading(false);
+        } else {
+            try {
+                const response = await axios.request(options);
+                setData(response.data.data);
+                cache.current[cacheKey] = response.data.data;
+                setIsLoading(false);
+            } catch (error) {
+                setError(error);
+                alert('There was an error fetching data. Please try again later.');
+            } finally {
+                setIsLoading(false);
+            }
         }
-    }
+    };
 
     useEffect(() => {
         fetchData();
     }, []);
 
     const refetch = () => {
-        setIsLoading(true);
         fetchData();
-    }
+    };
 
     return { data, isLoading, error, refetch };
-
-}
+};
 
 export default useFetch;
